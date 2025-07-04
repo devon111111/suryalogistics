@@ -16,25 +16,25 @@ async def read_index():
     with open(html_path, "r") as f:
         return HTMLResponse(content=f.read(), status_code=200, headers=generate_uuid_header())
 
-@router.get("/about", include_in_schema=True)
+@router.get("/about", include_in_schema=False)
 async def about_page():
     html_path = Path(__file__).parent.parent / "static" / "about.html"
     with open(html_path, "r") as f:
         return HTMLResponse(content=f.read(), status_code=200, headers=generate_uuid_header())
 
-@router.get("/services",include_in_schema=True)
+@router.get("/services",include_in_schema=False)
 async def services_page():
     html_path = Path(__file__).parent.parent / "static" / "service.html"
     with open(html_path, "r") as f:
         return HTMLResponse(content=f.read(), status_code=200, headers=generate_uuid_header())
 
-@router.get("/location",include_in_schema=True)
+@router.get("/location",include_in_schema=False)
 async def location_page():
     html_path = Path(__file__).parent.parent / "static" / "location.html"
     with open(html_path, "r") as f:
         return HTMLResponse(content=f.read(), status_code=200, headers=generate_uuid_header())
 
-@router.get("/contact",include_in_schema=True)
+@router.get("/contact",include_in_schema=False)
 async def contact_page():
     html_path = Path(__file__).parent.parent / "static" / "contact.html"
     with open(html_path, "r") as f:
@@ -43,7 +43,7 @@ async def contact_page():
 
 IMAGE_DIRS = Path(__file__).parent.parent / "static" / "image"
 
-@router.get("/images/{image_name}", include_in_schema=True)
+@router.get("/images/{image_name}", include_in_schema=False)
 async def load_image(image_name: str):
     file_path = IMAGE_DIRS / image_name
     if not file_path.is_file():
