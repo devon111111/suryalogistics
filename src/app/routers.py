@@ -114,4 +114,4 @@ async def send_email(
     # Queue email task to run in background
     background_tasks.add_task(send_email_background, form)
 
-    return {"message": "Your request has been submitted. We will contact you shortly."}
+    return {"message": "Your request has been submitted. We will contact you soon."}
