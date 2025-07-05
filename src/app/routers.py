@@ -82,7 +82,7 @@ async def send_email(
     if form.drop_location and form.pickup_location.strip().lower() == form.drop_location.strip().lower():
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content={"message": "Pickup and drop-off locations cannot be the same"}
+            content={"message": "Pickup and drop-off locations can't be the same"}
         )
     if not form.phone.isdigit() or len(form.phone) != 10:
         return JSONResponse(
@@ -92,12 +92,12 @@ async def send_email(
     if "test" in form.pickup_location.strip().lower():
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content={"message": "Invalid pickup_location: test pickup_location are not allowed"}
+            content={"message": "test pickup_location are not allowed"}
         )
     if form.drop_location and "test" in form.drop_location.strip().lower():
          return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content={"message": "Invalid drop_location: test drop_location are not allowed"}
+            content={"message": "test drop_location are not allowed"}
         )
     today = date.today()
     if form.shifting_date < today:
