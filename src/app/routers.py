@@ -3,6 +3,8 @@ from fastapi.responses import HTMLResponse, FileResponse
 from app.services import send_email_background,generate_uuid_header
 from app.models import ContactForm
 from pathlib import Path
+from datetime import date
+from fastapi.responses import JSONResponse
 
 
 router=APIRouter()
@@ -58,27 +60,14 @@ async def load_image(image_name: str):
 # Simulated valid_uuids set (should be imported from service.py)
 valid_uuids = set()
 
-@router.post("/send-email")
+@router.post("/send-email",include_in_schema=False)
 async def send_email(
     background_tasks: BackgroundTasks,
     form_fields_phone: str = Form(..., alias="form_fields[field_1712b6c]"),
     form_fields_pickup_location: str = Form(..., alias="form_fields[field_5e7c41d]"),
     form_fields_shifting_date: str = Form(..., alias="form_fields[field_30c420f]"),
-    form_fields_name: str | None = Form(None, alias="form_fields[name]"),
-    post_id: str | None = Form(None),
-    form_id: str | None = Form(None),
-    action: str | None = Form(None),
-    referrer: str | None = Form(None),
-    x_session_uuid: str | None = Header(default=None)
+    form_fields_name: str | None = Form(None, alias="form_fields[name]")
 ):
-    # # Validate session UUID
-    # if x_session_uuid not in valid_uuids:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_401_UNAUTHORIZED,
-    #         detail="Invalid session UUID"
-    #     )
-
-    # Create ContactForm instance
     try:
         form = ContactForm(
             phone=form_fields_phone,
@@ -91,26 +80,32 @@ async def send_email(
 
     # Validation checks from original endpoint
     if form.drop_location and form.pickup_location.strip().lower() == form.drop_location.strip().lower():
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Pickup and drop-off locations cannot be the same"
+            content={"message": "Pickup and drop-off locations can't be the same"}
         )
     if not form.phone.isdigit() or len(form.phone) != 10:
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Phone number must contain exactly 10 digits"
+            content={"message": "Phone number must contain exactly 10 digits"}
         )
     if "test" in form.pickup_location.strip().lower():
-        raise HTTPException(
+        return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid pickup_location: test pickup_location are not allowed"
+            content={"message": "test pickup_location are not allowed"}
         )
     if form.drop_location and "test" in form.drop_location.strip().lower():
-        raise HTTPException(
+         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid drop_location: test drop_location are not allowed"
+            content={"message": "test drop_location are not allowed"}
         )
-
+    today = date.today()
+    if form.shifting_date < today:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content={"message": "Shifting date can't be in the past. Please select today or a future date."}
+        )
+        
     # Queue email task to run in background
     background_tasks.add_task(send_email_background, form)
 

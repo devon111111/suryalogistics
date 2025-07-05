@@ -92,4 +92,4 @@ def send_email_background(form: ContactForm):
         server.quit()
 
     except Exception as e:
-        print("Failed to send email:", e)
+        print("something went wrong please try after sometime",e)
